@@ -873,7 +873,6 @@ import { galleryArray } from "../data/galleryData";
     function navigateModal(index: number) {
       if (index < 0 || index >= galleryData.length) return;
       
-      const data = galleryData[index];
       const elementsToAnimate = [mImg, mPhase, mTitle, mDesc, mFacts];
       
       gsap.to(elementsToAnimate, {
@@ -881,7 +880,11 @@ import { galleryArray } from "../data/galleryData";
         y: 10,
         duration: 0.2,
         onComplete: () => {
+          if (currentPanelImg) gsap.set(currentPanelImg, { opacity: 1 });
+
           currentPanelImg = panels[index].querySelector(".float-panel__img") as HTMLElement;
+          gsap.set(currentPanelImg, { opacity: 0 });
+
           populateModalData(index);
 
           gsap.to(elementsToAnimate, {
