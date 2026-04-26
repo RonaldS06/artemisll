@@ -1,11 +1,324 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+import ScrollNarrative from "../components/ScrollNarrative.astro";
+import ImageStack from "../components/ImageStack.astro";
+import EarthScene from "../components/EarthScene.astro";
+import StarField from "../components/StarField.astro";
+import ClosingScene from "../components/ClosingScene.astro";
+import LoadingScreen from "../components/LoadingScreen.astro";
+import { Image } from "astro:assets";
+import escotilla from "../assets/escotilla3.png";
+import { Skiper25 } from "../components/ui/skiper-ui/music";
 ---
 
-<Layout>
-	<Welcome />
+<Layout
+  title="Artemis II"
+  description="Explora el espacio con Artemis, tu guía para descubrir los secretos del universo."
+>
+  <LoadingScreen />
+  <Navbar />
+  <StarField starCount={150} />
+  <EarthScene />
+  <ImageStack />
+
+  <div id="escotilla-wrapper" class="escotilla-wrapper">
+    <Image
+      id="escotilla-img"
+      src={escotilla}
+      alt="Escotilla de la nave espacial"
+      class="escotilla-img"
+      width={1920}
+      height={1080}
+      loading="eager"
+    />
+  </div>
+
+  <div id="skiper-container" class="skiper-container dark">
+    <Skiper25 client:load />
+  </div>
+
+  <div id="scroll-container" class="scroll-container">
+    <section id="zoom-trigger" class="zoom-trigger"></section>
+    <ScrollNarrative />
+    <ClosingScene />
+  </div>
 </Layout>
+
+<style>
+  .escotilla-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .escotilla-img {
+    min-width: 100vw;
+    min-height: 100vh;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    will-change: transform;
+    transform-origin: center center;
+  }
+
+  .scroll-container {
+    position: relative;
+    z-index: 5;
+  }
+
+  .zoom-trigger {
+    height: 150vh;
+    position: relative;
+  }
+
+  .section-hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    position: relative;
+    z-index: 20;
+  }
+
+  .hero-text {
+    text-align: center;
+  }
+
+  .hero-text h1 {
+    font-size: clamp(3rem, 10vw, 8rem);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin: 0;
+  }
+
+  .hero-text p {
+    font-size: clamp(1rem, 3vw, 1.5rem);
+    margin-top: 1rem;
+    opacity: 0.8;
+  }
+
+  .section-info {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding: 2rem 4rem;
+    position: relative;
+    z-index: 20;
+  }
+
+  .info-card {
+    max-width: 32rem;
+  }
+
+  .info-card h2 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    margin: 0 0 1.5rem;
+  }
+
+  .info-card p {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: #c0c0c0;
+  }
+
+  .section-join {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-height: 100vh;
+    padding: 2rem 4rem;
+    position: relative;
+    z-index: 20;
+  }
+
+  .join-card {
+    max-width: 32rem;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 2.5rem;
+    border-radius: 1rem;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .join-card h2 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    margin: 0 0 1rem;
+  }
+
+  .join-card p {
+    font-size: 1.125rem;
+    color: #c0c0c0;
+  }
+
+  .skiper-container {
+    position: fixed;
+    bottom: 2rem;
+    left: 2rem;
+    z-index: 100;
+    height: 250px;
+    width: 150px;
+  }
+
+  @media (max-width: 768px) {
+    .section-info,
+    .section-join {
+      padding: 2rem;
+      justify-content: center;
+    }
+    .skiper-container {
+      bottom: 1rem;
+      left: 1rem;
+      height: 200px;
+      width: 120px;
+    }
+    .zoom-trigger {
+      height: 120vh;
+    }
+  }
+</style>
+
+<script is:inline src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"
+></script>
+
+<script>
+  // @ts-ignore
+  import gsap from "gsap";
+  // @ts-ignore
+  import ScrollTrigger from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const initLenis = () => {
+    if (window.innerWidth <= 768) return;
+    if (!(window as any).Lenis) return;
+
+    const lenis = new (window as any).Lenis({
+      duration: 1.2,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+
+    lenis.on("scroll", ScrollTrigger.update);
+
+    gsap.ticker.add((time: number) => {
+      lenis.raf(time * 1000);
+    });
+
+    gsap.ticker.lagSmoothing(0);
+  };
+
+  initLenis();
+
+  function initPortholeEffect() {
+    const wrapper = document.getElementById("escotilla-wrapper");
+    const escotillaImg = document.getElementById(
+      "escotilla-img",
+    ) as HTMLImageElement | null;
+    const zoomTrigger = document.getElementById("zoom-trigger");
+
+    if (!wrapper || !escotillaImg || !zoomTrigger) {
+      console.error("Elementos no encontrados para el efecto de escotilla");
+      return;
+    }
+
+    function getEndScale(): number {
+      const circleRatio = 0.35;
+      const baseScale = 1 / circleRatio;
+
+      const viewportAspect = window.innerWidth / window.innerHeight;
+      const imageAspect = 1920 / 1080;
+
+      let multiplier = 1;
+      if (viewportAspect > imageAspect) {
+        multiplier = viewportAspect / imageAspect;
+      }
+
+      return Math.max(baseScale * multiplier * 1.3, 4);
+    }
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: zoomTrigger,
+        start: "top top",
+        end: "bottom top",
+        scrub: 0.5,
+        invalidateOnRefresh: true,
+      },
+    });
+
+    tl.fromTo(
+      escotillaImg,
+      { scale: 1 },
+      {
+        scale: () => getEndScale(),
+        ease: "none",
+        duration: 1,
+      },
+    );
+
+    const earthProxy = { progress: 0 };
+    tl.to(
+      earthProxy,
+      {
+        progress: 1,
+        ease: "none",
+        duration: 1,
+        onUpdate: () => {
+          if ((window as any).updateEarthProgress) {
+            (window as any).updateEarthProgress(earthProxy.progress);
+          }
+        },
+      },
+      0,
+    );
+
+    tl.to(
+      wrapper,
+      {
+        opacity: 0,
+        duration: 0.15,
+        ease: "none",
+      },
+      0.85,
+    );
+
+    const narrativeSection = document.getElementById("scroll-narrative");
+    if (narrativeSection) {
+      const zoomOutProxy = { progress: 0 };
+      gsap.to(zoomOutProxy, {
+        progress: 1,
+        ease: "none",
+        scrollTrigger: {
+          trigger: narrativeSection,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: true,
+        },
+        onUpdate: () => {
+          if ((window as any).updateEarthZoom) {
+            (window as any).updateEarthZoom(zoomOutProxy.progress);
+          }
+        }
+      });
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initPortholeEffect);
+  } else {
+    requestAnimationFrame(initPortholeEffect);
+  }
+</script>

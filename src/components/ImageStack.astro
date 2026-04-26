@@ -1,0 +1,923 @@
+---
+import { Image } from "astro:assets";
+import { galleryArray } from "../data/galleryData";
+---
+
+<div id="floating-gallery" class="floating-gallery">
+  {
+    galleryArray.map((img, index) => (
+      <div class="float-panel" data-panel={index}>
+        <div class="float-panel__inner">
+          <Image
+            src={img.src}
+            alt={img.alt}
+            class="float-panel__img"
+            widths={[400, 800]}
+            sizes="(max-width: 768px) 70vw, 25vw"
+          />
+          <div class="float-panel__shine" />
+          <div class="float-panel__info">
+            <span class="float-panel__num">{img.year}</span>
+            <p class="float-panel__caption">{img.title}</p>
+          </div>
+          <div class="float-panel__timeline-dot" />
+        </div>
+      </div>
+    ))
+  }
+</div>
+
+<div
+  id="gallery-data-store"
+  data-store={JSON.stringify(
+    galleryArray.map((item) => ({
+      ...item,
+      src: item.src.src,
+    }))
+  )}
+  style="display:none;"
+>
+</div>
+
+<div id="gallery-modal" class="gallery-modal">
+  <div class="modal-backdrop"></div>
+  <div class="modal-container">
+    <button class="modal-close" aria-label="Cerrar">
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M18 6L6 18M6 6l12 12"></path>
+      </svg>
+    </button>
+
+    <div class="modal-content">
+      <div class="modal-image-col">
+        <img id="modal-image" src="" alt="" class="modal-image" />
+      </div>
+
+      <div class="modal-info-col">
+        <span id="modal-phase" class="detail-phase"></span>
+        <h2 id="modal-title" class="detail-title"></h2>
+        <p id="modal-desc" class="detail-description"></p>
+
+        <div class="detail-facts">
+          <h3 class="facts-title">Datos Clave</h3>
+          <ul id="modal-facts" class="facts-list"></ul>
+        </div>
+
+        <div class="detail-timeline">
+          {
+            galleryArray.map((data, index) => (
+              <button class="timeline-step modal-nav-btn" data-index={index}>
+                <span class="timeline-dot-mini" />
+                <span class="timeline-label">{data.title}</span>
+              </button>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .floating-gallery {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 25;
+    pointer-events: none;
+  }
+
+  .float-panel {
+    position: absolute;
+    width: clamp(180px, 22vw, 320px);
+    aspect-ratio: 16 / 10;
+    opacity: 0;
+    pointer-events: none;
+    cursor: pointer;
+    will-change: transform, opacity;
+  }
+
+  .float-panel.is-visible {
+    pointer-events: auto;
+  }
+
+  .float-panel[data-panel="0"] {
+    top: 8%;
+    left: 5%;
+  }
+  .float-panel[data-panel="1"] {
+    top: 6%;
+    right: 5%;
+    left: auto;
+  }
+  .float-panel[data-panel="2"] {
+    bottom: 14%;
+    left: 4%;
+    top: auto;
+  }
+  .float-panel[data-panel="3"] {
+    bottom: 10%;
+    right: 4%;
+    top: auto;
+    left: auto;
+  }
+
+  .float-panel__inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.6),
+      0 0 0 1px rgba(255, 255, 255, 0.04);
+    transition: box-shadow 0.4s ease;
+    transform-style: preserve-3d;
+  }
+
+  .float-panel:hover .float-panel__inner {
+    box-shadow:
+      0 16px 64px rgba(82, 154, 255, 0.15),
+      0 0 0 1px rgba(130, 190, 255, 0.25),
+      0 0 30px rgba(82, 154, 255, 0.1);
+  }
+
+  .float-panel__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .float-panel__shine {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.08),
+      transparent
+    );
+    transform: skewX(-15deg);
+    transition: left 0.6s ease;
+    pointer-events: none;
+  }
+
+  .float-panel:hover .float-panel__shine {
+    left: 150%;
+  }
+
+  .float-panel__info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem 1.2rem;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.8) 0%,
+      transparent 100%
+    );
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s ease;
+  }
+
+  .float-panel:hover .float-panel__info {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .float-panel__num {
+    font-family: "Poppins", monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: rgba(130, 190, 255, 0.9);
+  }
+
+  .float-panel__caption {
+    font-family: "Poppins", sans-serif;
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+  }
+
+  .float-panel__timeline-dot {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(130, 190, 255, 0.6);
+    box-shadow: 0 0 8px rgba(130, 190, 255, 0.4);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .float-panel.is-visible .float-panel__timeline-dot {
+    opacity: 1;
+  }
+
+  .gallery-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .gallery-modal.is-active {
+    pointer-events: auto;
+  }
+
+  .modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 25, 41, 0.85);
+    backdrop-filter: blur(12px);
+    opacity: 0;
+    will-change: opacity;
+  }
+
+  .modal-container {
+    position: relative;
+    width: 90%;
+    max-width: 1200px;
+    background: rgba(15, 30, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 2.5rem;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+    opacity: 0;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+  }
+
+  .modal-close:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: rotate(90deg);
+  }
+
+  .modal-content {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 3rem;
+  }
+
+  .modal-image-col {
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+
+  .modal-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    aspect-ratio: 16/11;
+    display: block;
+  }
+
+  .modal-info-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: white;
+    font-family: "Poppins", sans-serif;
+  }
+
+  .detail-phase {
+    display: inline-block;
+    align-self: flex-start;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: rgba(130, 190, 255, 0.9);
+    background: rgba(130, 190, 255, 0.08);
+    padding: 0.4rem 1rem;
+    border-radius: 100px;
+    border: 1px solid rgba(130, 190, 255, 0.15);
+    margin-bottom: 1.2rem;
+  }
+
+  .detail-title {
+    font-size: clamp(2rem, 3vw, 3rem);
+    color: #fff;
+    font-weight: 700;
+    margin: 0 0 1.2rem;
+    line-height: 1.1;
+    background-clip: text;
+  }
+
+  .detail-description {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.75);
+    margin: 0 0 2rem;
+  }
+
+  .detail-facts {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .facts-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(130, 190, 255, 0.8);
+    margin: 0 0 1rem;
+  }
+
+  .facts-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .facts-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.5;
+  }
+
+  .facts-list li::before {
+    content: "";
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(130, 190, 255, 0.6);
+    margin-top: 0.5rem;
+  }
+
+  .detail-timeline {
+    display: flex;
+    gap: 0;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .timeline-step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 1rem 0.5rem;
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.65rem;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.3s ease;
+    border-right: 1px solid rgba(255, 255, 255, 0.04);
+    background: transparent;
+    border-top: none;
+    border-bottom: none;
+    border-left: none;
+    cursor: pointer;
+  }
+
+  .timeline-step:last-child {
+    border-right: none;
+  }
+
+  .timeline-step:hover {
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(130, 190, 255, 0.04);
+  }
+
+  .timeline-step.active {
+    color: #fff;
+    background: rgba(130, 190, 255, 0.08);
+  }
+
+  .timeline-dot-mini {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    transition: all 0.3s ease;
+  }
+
+  .timeline-step.active .timeline-dot-mini {
+    background: rgba(130, 190, 255, 0.9);
+    box-shadow: 0 0 10px rgba(130, 190, 255, 0.4);
+  }
+
+  @media (max-width: 900px) {
+    .modal-content {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    .modal-container {
+      padding: 1.5rem;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-close {
+      top: 1rem;
+      right: 1rem;
+      background: rgba(0,0,0,0.5);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .float-panel {
+      width: clamp(110px, 40vw, 160px);
+    }
+    .float-panel[data-panel="0"] {
+      top: 10%;
+      left: 3%;
+    }
+    .float-panel[data-panel="1"] {
+      top: 8%;
+      right: 3%;
+    }
+    .float-panel[data-panel="2"] {
+      bottom: 18%;
+      left: 2%;
+    }
+    .float-panel[data-panel="3"] {
+      bottom: 14%;
+      right: 2%;
+    }
+    .float-panel__inner {
+      border-radius: 10px;
+    }
+    .float-panel__info {
+      padding: 0.5rem 0.7rem;
+    }
+    .float-panel__num {
+      font-size: 0.55rem;
+    }
+    .float-panel__caption {
+      font-size: 0.6rem;
+    }
+    .modal-container {
+      width: 95%;
+      padding: 1.2rem;
+      border-radius: 16px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-content {
+      grid-template-columns: 1fr;
+      gap: 1.2rem;
+    }
+    .modal-close {
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 36px;
+      height: 36px;
+      background: rgba(0, 0, 0, 0.5);
+    }
+    .modal-image {
+      aspect-ratio: 16/10;
+    }
+    .detail-title {
+      font-size: 1.5rem;
+    }
+    .detail-description {
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+    .detail-phase {
+      font-size: 0.6rem;
+      padding: 0.3rem 0.7rem;
+    }
+    .detail-facts {
+      padding: 1rem;
+    }
+    .facts-list li {
+      font-size: 0.8rem;
+    }
+    .timeline-step {
+      font-size: 0.55rem;
+      padding: 0.7rem 0.3rem;
+    }
+  }
+</style>
+
+<script>
+  import gsap from "gsap";
+  import ScrollTrigger from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  function initGallery() {
+    const panels = gsap.utils.toArray<HTMLElement>(".float-panel");
+    const narrativeSection = document.getElementById("scroll-narrative");
+    if (panels.length === 0 || !narrativeSection) return;
+
+    const isMobile = window.innerWidth <= 768;
+    const offset = isMobile ? 150 : 300;
+    const startPositions = [
+      { x: -offset, y: -offset / 2, rotateY: 35, rotateX: -15, scale: 0.4 },
+      { x: offset, y: -offset / 2, rotateY: -35, rotateX: -15, scale: 0.4 },
+      { x: -offset, y: offset / 2, rotateY: 35, rotateX: 15, scale: 0.4 },
+      { x: offset, y: offset / 2, rotateY: -35, rotateX: 15, scale: 0.4 },
+    ];
+
+    panels.forEach((panel, i) => {
+      const sp = startPositions[i];
+      gsap.set(panel, {
+        x: sp.x,
+        y: sp.y,
+        rotateY: sp.rotateY,
+        rotateX: sp.rotateX,
+        scale: sp.scale,
+        opacity: 0,
+      });
+    });
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: narrativeSection,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 1,
+      },
+    });
+
+    panels.forEach((panel, i) => {
+      const sp = startPositions[i];
+      tl.fromTo(
+        panel,
+        {
+          x: sp.x,
+          y: sp.y,
+          rotateY: sp.rotateY,
+          rotateX: sp.rotateX,
+          scale: sp.scale,
+          opacity: 0,
+        },
+        {
+          x: 0,
+          y: 0,
+          rotateY: 0,
+          rotateX: 0,
+          scale: 1,
+          opacity: 1,
+          duration: 0.4,
+          ease: "power3.out",
+          immediateRender: false,
+          onStart: () => panel.classList.add("is-visible"),
+          onReverseComplete: () => panel.classList.remove("is-visible"),
+        },
+        i * 0.08
+      );
+    });
+
+    const closingTrigger = document.getElementById("closing-trigger");
+    if (closingTrigger) {
+      const tlOut = gsap.timeline({
+        scrollTrigger: {
+          trigger: closingTrigger,
+          start: "top bottom",
+          end: "top center",
+          scrub: 1,
+        },
+      });
+
+      panels.forEach((panel, i) => {
+        const inner = panel.querySelector(".float-panel__inner") as HTMLElement;
+        if (!inner) return;
+        
+        tlOut.fromTo(
+          inner,
+          {
+            x: 0,
+            y: 0,
+            scale: 1,
+            opacity: 1,
+          },
+          {
+            x: startPositions[i].x * 1.5,
+            y: startPositions[i].y * 1.5,
+            scale: 0.5,
+            opacity: 0,
+            duration: 1,
+            ease: "power2.inOut",
+            immediateRender: false,
+            onComplete: () => panel.classList.remove("is-visible"),
+            onReverseComplete: () => panel.classList.add("is-visible"),
+          },
+          0
+        );
+      });
+    }
+
+    panels.forEach((panel) => {
+      const inner = panel.querySelector(".float-panel__inner") as HTMLElement;
+      if (!inner) return;
+
+      panel.addEventListener("mousemove", (e: MouseEvent) => {
+        const rect = panel.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        gsap.to(inner, {
+          rotateY: x * 25,
+          rotateX: -y * 25,
+          scale: 1.08,
+          duration: 0.3,
+          ease: "power2.out",
+        });
+      });
+
+      panel.addEventListener("mouseleave", () => {
+        gsap.to(inner, {
+          rotateY: 0,
+          rotateX: 0,
+          scale: 1,
+          duration: 0.6,
+          ease: "elastic.out(1, 0.4)",
+        });
+      });
+    });
+
+    const storeEl = document.getElementById("gallery-data-store");
+    const galleryData = JSON.parse(storeEl?.dataset.store || "[]");
+
+    const modal = document.getElementById("gallery-modal");
+    const backdrop = modal?.querySelector(".modal-backdrop");
+    const container = modal?.querySelector(".modal-container");
+    const btnClose = modal?.querySelector(".modal-close");
+
+    const mImg = document.getElementById("modal-image") as HTMLImageElement;
+    const mPhase = document.getElementById("modal-phase");
+    const mTitle = document.getElementById("modal-title");
+    const mDesc = document.getElementById("modal-desc");
+    const mFacts = document.getElementById("modal-facts");
+    const navBtns = document.querySelectorAll(".modal-nav-btn");
+
+    let isModalOpen = false;
+    let currentIndex = 0;
+    let activeClone: HTMLImageElement | null = null;
+    let currentPanelImg: HTMLElement | null = null;
+
+    function openModal(index: number) {
+      if (!modal || !backdrop || !container) return;
+      isModalOpen = true;
+      modal.classList.add("is-active");
+      document.body.style.overflow = "hidden";
+
+      const panel = panels[index];
+      currentPanelImg = panel.querySelector(".float-panel__img") as HTMLElement;
+
+      populateModalData(index);
+
+      gsap.to(backdrop, { opacity: 1, duration: 0.4, ease: "power2.out" });
+      gsap.to(container, { opacity: 1, duration: 0.4, ease: "power2.out" });
+
+      gsap.set(mImg, { opacity: 0 });
+      const elementsToAnimate = [mPhase, mTitle, mDesc, mFacts, document.querySelector(".detail-timeline")];
+      gsap.set(elementsToAnimate, { opacity: 0, y: 20 });
+      const startRect = currentPanelImg.getBoundingClientRect();
+      activeClone = currentPanelImg.cloneNode(true) as HTMLImageElement;
+      gsap.set(activeClone, {
+        position: "fixed",
+        top: startRect.top,
+        left: startRect.left,
+        width: startRect.width,
+        height: startRect.height,
+        zIndex: 9999,
+        objectFit: "cover",
+        borderRadius: "14px",
+        margin: 0,
+      });
+      document.body.appendChild(activeClone);
+
+      gsap.set(currentPanelImg, { opacity: 0 });
+      requestAnimationFrame(() => {
+        const targetRect = mImg.getBoundingClientRect();
+
+        gsap.to(activeClone, {
+          top: targetRect.top,
+          left: targetRect.left,
+          width: targetRect.width,
+          height: targetRect.height,
+          borderRadius: "16px",
+          duration: 0.6,
+          ease: "power3.inOut",
+          onComplete: () => {
+            gsap.set(mImg, { opacity: 1 });
+            if (activeClone) {
+              activeClone.remove();
+              activeClone = null;
+            }
+          },
+        });
+
+        gsap.to(elementsToAnimate, {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.05,
+          ease: "power2.out",
+          delay: 0.3,
+        });
+      });
+    }
+
+    function closeModal() {
+      if (!modal || !backdrop || !container || !currentPanelImg) return;
+      isModalOpen = false;
+      document.body.style.overflow = "";
+
+      const elementsToAnimate = [mPhase, mTitle, mDesc, mFacts, document.querySelector(".detail-timeline")];
+      gsap.to(elementsToAnimate, { opacity: 0, y: -10, duration: 0.2 });
+
+      const startRect = mImg.getBoundingClientRect();
+      activeClone = mImg.cloneNode(true) as HTMLImageElement;
+      gsap.set(activeClone, {
+        position: "fixed",
+        top: startRect.top,
+        left: startRect.left,
+        width: startRect.width,
+        height: startRect.height,
+        zIndex: 9999,
+        objectFit: "cover",
+        borderRadius: "16px",
+        margin: 0,
+      });
+      document.body.appendChild(activeClone);
+
+      gsap.set(mImg, { opacity: 0 });
+
+      const targetRect = currentPanelImg.getBoundingClientRect();
+
+      gsap.to(activeClone, {
+        top: targetRect.top,
+        left: targetRect.left,
+        width: targetRect.width,
+        height: targetRect.height,
+        borderRadius: "14px",
+        duration: 0.5,
+        ease: "power3.inOut",
+        onComplete: () => {
+          gsap.set(currentPanelImg, { opacity: 1 });
+          if (activeClone) {
+            activeClone.remove();
+            activeClone = null;
+          }
+        },
+      });
+
+      gsap.to(container, {
+        opacity: 0,
+        duration: 0.3,
+        ease: "power2.in",
+        delay: 0.2,
+      });
+      gsap.to(backdrop, {
+        opacity: 0,
+        duration: 0.4,
+        ease: "power2.in",
+        delay: 0.2,
+        onComplete: () => {
+          modal.classList.remove("is-active");
+        },
+      });
+    }
+
+    function populateModalData(index: number) {
+      if (index < 0 || index >= galleryData.length) return;
+      currentIndex = index;
+      const data = galleryData[index];
+
+      mImg.src = data.src;
+      mImg.alt = data.alt;
+      if (mPhase) mPhase.textContent = data.phase;
+      if (mTitle) mTitle.textContent = data.title;
+      if (mDesc) mDesc.textContent = data.description;
+
+      if (mFacts) {
+        mFacts.innerHTML = "";
+        data.details.forEach((detail: string) => {
+          const li = document.createElement("li");
+          li.textContent = detail;
+          mFacts.appendChild(li);
+        });
+      }
+
+      navBtns.forEach((btn, i) => {
+        if (i === index) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+    }
+
+    function navigateModal(index: number) {
+      if (index < 0 || index >= galleryData.length) return;
+      
+      const data = galleryData[index];
+      const elementsToAnimate = [mImg, mPhase, mTitle, mDesc, mFacts];
+      
+      gsap.to(elementsToAnimate, {
+        opacity: 0,
+        y: 10,
+        duration: 0.2,
+        onComplete: () => {
+          currentPanelImg = panels[index].querySelector(".float-panel__img") as HTMLElement;
+          populateModalData(index);
+
+          gsap.to(elementsToAnimate, {
+            opacity: 1,
+            y: 0,
+            duration: 0.4,
+            stagger: 0.05,
+            ease: "power2.out"
+          });
+        },
+      });
+    }
+
+    panels.forEach((panel) => {
+      panel.addEventListener("click", () => {
+        const index = parseInt(panel.dataset.panel || "0", 10);
+        openModal(index);
+      });
+    });
+
+    navBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const index = parseInt((btn as HTMLElement).dataset.index || "0", 10);
+        if (index !== currentIndex) {
+          navigateModal(index);
+        }
+      });
+    });
+
+    btnClose?.addEventListener("click", closeModal);
+    backdrop?.addEventListener("click", closeModal);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initGallery);
+  } else {
+    requestAnimationFrame(initGallery);
+  }
+</script>

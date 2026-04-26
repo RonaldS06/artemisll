@@ -1,0 +1,166 @@
+<div id="earth-container" class="earth-container"></div>
+
+<style>
+  .earth-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    filter: drop-shadow(0 0 15px rgba(82, 154, 255, 0.494));
+  }
+</style>
+
+<script>
+  import * as THREE from "three";
+  import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+
+  function initEarth() {
+    const container = document.getElementById("earth-container");
+    if (!container) return;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(
+      10,
+      container.clientWidth / container.clientHeight,
+      0.1,
+      1000,
+    );
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+
+    const sunLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    sunLight.position.set(5, 3, 5);
+    scene.add(sunLight);
+
+    const rimLight = new THREE.DirectionalLight(0x4488ff, 0.4);
+    rimLight.position.set(-3, -1, -3);
+    scene.add(rimLight);
+
+    let earthMesh: THREE.Group | undefined;
+    let earthRadius = 1;
+    let startY = 0;
+    let endY = 0;
+    let currentProgress = 0;
+    let zoomProgress = 0;
+
+    function updateEarthPosition() {
+      if (!earthMesh) return;
+      const baseY = startY + (endY - startY) * currentProgress;
+      earthMesh.position.y = baseY + (0 - baseY) * zoomProgress;
+    }
+
+    (window as any).updateEarthProgress = (progress: number) => {
+      currentProgress = progress;
+      updateEarthPosition();
+    };
+
+    (window as any).updateEarthZoom = (progress: number) => {
+      zoomProgress = progress;
+      camera.position.z = 5 + progress * 25;
+      updateEarthPosition();
+    };
+
+    function positionEarth() {
+      if (!earthMesh) return;
+
+      const w = container!.clientWidth;
+      const h = container!.clientHeight;
+      const aspect = w / h;
+
+      camera.aspect = aspect;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+
+      const fovRad = THREE.MathUtils.degToRad(camera.fov);
+      const dist = camera.position.z;
+      const visibleHeight = 2 * Math.tan(fovRad / 2) * dist;
+      const visibleWidth = visibleHeight * aspect;
+
+      const desiredDiameter = visibleWidth;
+      const scale = desiredDiameter / (2 * earthRadius);
+      earthMesh.scale.set(scale, scale, scale);
+
+      const earthScaledRadius = earthRadius * scale;
+
+      startY = -(visibleHeight / 2) - earthScaledRadius * 0.65;
+
+      endY = -(visibleHeight / 2) - earthScaledRadius * 0.1;
+
+      updateEarthPosition();
+    }
+
+    const loader = new GLTFLoader();
+
+    loader.load(
+      "/earth.glb",
+      function (gltf) {
+        earthMesh = gltf.scene;
+
+        const box = new THREE.Box3().setFromObject(earthMesh);
+        const center = box.getCenter(new THREE.Vector3());
+        earthMesh.position.x -= center.x;
+        earthMesh.position.y -= center.y;
+        earthMesh.position.z -= center.z;
+
+        const size = box.getSize(new THREE.Vector3());
+        earthRadius = Math.max(size.x, size.y, size.z) / 2;
+
+        scene.add(earthMesh);
+
+        camera.position.z = 5;
+
+        positionEarth();
+
+        if ((window as any).__loaderReady) {
+          (window as any).__loaderReady();
+        }
+      },
+      undefined,
+      function (error) {
+        console.error("Error al cargar la Tierra:", error);
+      },
+    );
+
+    let isVisible = true;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          isVisible = entry.isIntersecting;
+        });
+      },
+      { threshold: 0 }
+    );
+    observer.observe(container);
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (!isVisible) return;
+      
+      if (earthMesh) {
+        earthMesh.rotation.y += 0.0005;
+      }
+      renderer.render(scene, camera);
+    }
+
+    function onWindowResize() {
+      positionEarth();
+    }
+
+    window.addEventListener("resize", onWindowResize, false);
+    animate();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initEarth);
+  } else {
+    initEarth();
+  }
+</script>

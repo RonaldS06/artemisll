@@ -1,0 +1,249 @@
+<div id="loading-screen" class="loading-screen">
+  <div class="loading-content">
+    <div class="loading-logo">
+      <svg
+        width="123"
+        height="123"
+        viewBox="0 0 123 123"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M14.7593 92.5011C21.8129 61.2939 36.8825 32.4654 58.4807 8.86114C58.8647 8.44332 59.3313 8.10978 59.8509 7.88161C60.3705 7.65345 60.9318 7.53564 61.4993 7.53564C62.0668 7.53564 62.6281 7.65345 63.1477 7.88161C63.6673 8.10978 64.1339 8.44332 64.5179 8.86114C65.3721 9.78364 66.0759 10.5626 66.6294 11.1981C87.1123 34.3711 101.423 62.3336 108.239 92.5011C97.1207 94.8439 85.8409 96.343 74.4963 96.9855L63.7901 118.388C63.5771 118.813 63.25 119.17 62.8454 119.42C62.4408 119.67 61.9747 119.802 61.4993 119.802C61.0238 119.802 60.5577 119.67 60.1531 119.42C59.7486 119.17 59.4214 118.813 59.2084 118.388L48.5023 96.9804C37.1577 96.3379 25.8779 94.8439 14.7593 92.5011ZM61.4993 76.8494C65.577 76.8494 69.4877 75.2295 72.371 72.3462C75.2544 69.4628 76.8743 65.5521 76.8743 61.4744C76.8743 57.3967 75.2544 53.486 72.371 50.6026C69.4877 47.7193 65.577 46.0994 61.4993 46.0994C57.4216 46.0994 53.5109 47.7193 50.6275 50.6026C47.7441 53.486 46.1243 57.3967 46.1243 61.4744C46.1243 65.5521 47.7441 69.4628 50.6275 72.3462C53.5109 75.2295 57.4216 76.8494 61.4993 76.8494Z"
+          fill="white"></path>
+      </svg>
+    </div>
+
+    <div class="loading-bar-track">
+      <div id="loading-bar-fill" class="loading-bar-fill"></div>
+    </div>
+    <p id="loading-status" class="loading-status">Preparando la misión…</p>
+  </div>
+
+  <canvas id="loader-particles" class="loader-particles"></canvas>
+</div>
+
+<style>
+  .loading-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #050d1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+      visibility 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .loading-screen.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .loader-particles {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+  }
+
+  .loading-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .loading-logo {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: logo-pulse 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px rgba(82, 154, 255, 0.4));
+  }
+
+  .loading-logo svg {
+    width: 60px;
+    height: 60px;
+  }
+
+  @keyframes logo-pulse {
+    0%,
+    100% {
+      transform: scale(1);
+      filter: drop-shadow(0 0 20px rgba(82, 154, 255, 0.3));
+    }
+    50% {
+      transform: scale(1.08);
+      filter: drop-shadow(0 0 35px rgba(82, 154, 255, 0.6));
+    }
+  }
+
+  .loading-bar-track {
+    width: 220px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 100px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .loading-bar-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 100px;
+    background: linear-gradient(
+      90deg,
+      rgba(82, 154, 255, 0.6),
+      rgba(130, 190, 255, 0.9)
+    );
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 12px rgba(82, 154, 255, 0.5);
+  }
+
+  .loading-status {
+    font-family: "Poppins", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    color: rgba(255, 255, 255, 0.35);
+    margin: 0;
+    text-transform: uppercase;
+    min-height: 1.2em;
+  }
+
+  @media (max-width: 768px) {
+    .loading-title {
+      font-size: 1.2rem;
+    }
+    .loading-bar-track {
+      width: 180px;
+    }
+  }
+</style>
+
+<script>
+  function initLoader() {
+    const screen = document.getElementById("loading-screen");
+    const bar = document.getElementById("loading-bar-fill");
+    const status = document.getElementById("loading-status");
+    const canvas = document.getElementById(
+      "loader-particles",
+    ) as HTMLCanvasElement;
+
+    if (!screen || !bar || !status) return;
+
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      interface Particle {
+        x: number;
+        y: number;
+        vx: number;
+        vy: number;
+        r: number;
+        alpha: number;
+      }
+
+      const particles: Particle[] = [];
+      for (let i = 0; i < 80; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
+          r: Math.random() * 1.5 + 0.3,
+          alpha: Math.random() * 0.5 + 0.1,
+        });
+      }
+
+      let animId: number;
+      function drawParticles() {
+        if (!ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (const p of particles) {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0) p.x = canvas.width;
+          if (p.x > canvas.width) p.x = 0;
+          if (p.y < 0) p.y = canvas.height;
+          if (p.y > canvas.height) p.y = 0;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(130, 190, 255, ${p.alpha})`;
+          ctx.fill();
+        }
+        animId = requestAnimationFrame(drawParticles);
+      }
+      drawParticles();
+
+      (window as any).__stopLoaderParticles = () => {
+        cancelAnimationFrame(animId);
+      };
+    }
+
+    let progress = 0;
+    const messages = [
+      { at: 0, text: "Preparando la misión…" },
+      { at: 15, text: "Cargando modelos 3D…" },
+      { at: 40, text: "Renderizando la Tierra…" },
+      { at: 70, text: "Configurando escenas…" },
+      { at: 90, text: "Casi listo…" },
+    ];
+
+    function updateProgress(value: number) {
+      progress = Math.min(value, 100);
+      bar!.style.width = `${progress}%`;
+      for (let i = messages.length - 1; i >= 0; i--) {
+        if (progress >= messages[i].at) {
+          status!.textContent = messages[i].text;
+          break;
+        }
+      }
+    }
+
+    (window as any).__loaderUpdateProgress = updateProgress;
+
+    let fakeProgress = 0;
+    const fakeInterval = setInterval(() => {
+      if (fakeProgress < 70) {
+        fakeProgress += Math.random() * 3 + 0.5;
+        updateProgress(fakeProgress);
+      }
+    }, 200);
+
+    (window as any).__loaderReady = () => {
+      clearInterval(fakeInterval);
+      updateProgress(100);
+      status!.textContent = "¡Despegue!";
+
+      setTimeout(() => {
+        screen!.classList.add("is-hidden");
+        document.body.style.overflow = "";
+
+        if ((window as any).__stopLoaderParticles) {
+          (window as any).__stopLoaderParticles();
+        }
+
+        setTimeout(() => {
+          screen!.remove();
+        }, 900);
+      }, 600);
+    };
+
+    document.body.style.overflow = "hidden";
+  }
+
+  initLoader();
+</script>

@@ -1,0 +1,302 @@
+<nav id="navbar" class="navbar">
+  <div class="navbar__logo-group">
+    <div id="logo-icon-wrapper" class="navbar__icon-wrapper">
+      <img src="/logo-artemis-icono.svg" alt="Artemis Logo" class="navbar__icon" width="32" height="32" />
+    </div>
+    <span id="logo-text" class="navbar__logo-text">ARTEMIS II</span>
+  </div>
+
+  <div id="nav-menu" class="navbar__menu">
+    <a href="#producto" class="navbar__link">PRODUCTO</a>
+    <a href="#empresa" class="navbar__link">EMPRESA</a>
+    <a href="#comprar" class="navbar__link">COMPRAR</a>
+    <a href="#contacto" class="navbar__link">CONTACTO</a>
+  </div>
+
+  <div id="nav-actions" class="navbar__actions">
+    <button class="navbar__lang-btn">
+      ES
+      <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <a href="#comenzar" class="navbar__cta">
+      COMENZAR
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 6H10M10 6L6 2M10 6L6 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </div>
+</nav>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 2rem;
+    font-family: 'Poppins', 'Inter', 'Segoe UI', sans-serif;
+    pointer-events: auto;
+  }
+
+  .navbar__logo-group {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-shrink: 0;
+    min-width: 0;
+  }
+
+  .navbar__icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    transition: background 0.4s ease-in-out, backdrop-filter 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
+  }
+
+  .navbar__icon-wrapper.has-bg {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+
+  .navbar__icon {
+    width: 24px;
+    height: 24px;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.4));
+  }
+
+  .navbar__logo-text {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: #ffffff;
+    white-space: nowrap;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .navbar__menu {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 0.45rem 0.35rem;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .navbar__link {
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    padding: 0.4rem 1rem;
+    border-radius: 9999px;
+    transition: color 0.25s ease-in-out, background 0.25s ease-in-out;
+    white-space: nowrap;
+  }
+
+  .navbar__link:hover {
+    color: #ffffff;
+  }
+
+  .navbar__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .navbar__lang-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.8rem;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 0.4rem 0.5rem;
+    transition: color 0.25s ease;
+    white-space: nowrap;
+  }
+
+  .navbar__lang-btn:hover {
+    color: #ffffff;
+  }
+
+  .navbar__cta {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 0.55rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid green;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 10px rgba(34, 197, 94, 0.35);
+    white-space: nowrap;
+  }
+  .navbar__cta:hover {
+    background: #6dff00;
+    color: #000000;
+  }
+
+  @media (max-width: 768px) {
+    .navbar {
+      padding: 0.5rem 1rem;
+    }
+    .navbar__menu {
+      display: none;
+    }
+    .navbar__actions {
+      display: none;
+    }
+    .navbar__logo-text {
+      font-size: 0.85rem;
+    }
+  }
+</style>
+
+<script>
+  import gsap from "gsap";
+  import ScrollTrigger from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  function initNavbarScroll() {
+    const logoText = document.getElementById("logo-text");
+    const navMenu = document.getElementById("nav-menu");
+    const navActions = document.getElementById("nav-actions");
+    const iconWrapper = document.getElementById("logo-icon-wrapper");
+
+    if (!logoText || !navMenu || !navActions || !iconWrapper) return;
+
+    const scrollDistance = 500;
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: document.body,
+        start: "top top",
+        end: `+=${scrollDistance}`,
+        scrub: 0.4,
+        invalidateOnRefresh: true,
+      },
+    });
+
+    const logoGroup = document.querySelector('.navbar__logo-group') as HTMLElement;
+    
+    tl.from(logoGroup, {
+      x: () => window.innerWidth / 2 - logoGroup.getBoundingClientRect().width / 2 - 32,
+      y: () => window.innerHeight / 2 - logoGroup.getBoundingClientRect().height / 2 - 12,
+      scale: 3,
+      transformOrigin: "center center",
+      duration: 1,
+      ease: "power2.inOut",
+    }, 0);
+
+    tl.to(
+      logoText,
+      {
+        opacity: 0,
+        x: -12,
+        width: 0,
+        marginLeft: 0,
+        paddingLeft: 0,
+        paddingRight: 0,
+        duration: 0.5,
+        ease: "power2.inOut",
+      },
+      0.4
+    );
+
+    tl.to(
+      navMenu,
+      {
+        x: () => {
+          const navRect = document.getElementById("navbar")!.getBoundingClientRect();
+          const menuRect = navMenu.getBoundingClientRect();
+          const logoIconRect = document.getElementById("logo-icon-wrapper")!.getBoundingClientRect();
+          const logoGroup = document.querySelector('.navbar__logo-group') as HTMLElement;
+          
+          const paddingX = logoIconRect.left - navRect.left;
+          
+          const gap = parseFloat(window.getComputedStyle(logoGroup).gap) || 0;
+          const finalLogoWidth = logoIconRect.width + gap; 
+          
+          const availableWidth = navRect.width - (paddingX * 2);
+          
+          const freeSpace = availableWidth - finalLogoWidth - menuRect.width;
+          const finalGap = freeSpace / 2; 
+          
+          const finalMenuRight = navRect.left + paddingX + finalLogoWidth + finalGap + menuRect.width;
+          
+          const targetRight = navRect.right - paddingX;
+          
+          return targetRight - finalMenuRight;
+        },
+        duration: 1,
+        ease: "power2.inOut",
+      },
+      0
+    );
+
+    tl.to(
+      navActions,
+      {
+        opacity: 0,
+        x: 30,
+        width: 0,
+        paddingLeft: 0,
+        paddingRight: 0,
+        overflow: "hidden",
+        duration: 0.5,
+        ease: "power2.inOut",
+      },
+      0.1
+    );
+
+    ScrollTrigger.create({
+      trigger: document.body,
+      start: "top top",
+      end: `+=${scrollDistance}`,
+      onUpdate: (self) => {
+        if (self.progress > 0.15) {
+          iconWrapper.classList.add("has-bg");
+        } else {
+          iconWrapper.classList.remove("has-bg");
+        }
+      },
+    });
+  }
+
+  window.addEventListener("load", () => {
+    initNavbarScroll();
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
+  });
+</script>

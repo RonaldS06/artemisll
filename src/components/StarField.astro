@@ -1,0 +1,82 @@
+---
+interface Props {
+  starCount?: number;
+  duration?: string;
+}
+
+const { starCount = 150, duration = '3s' } = Astro.props;
+
+const stars = Array.from({ length: starCount }, () => ({
+  x: Math.random() * 100,
+  y: Math.random() * 100,
+  size: Math.random() * 2 + 0.5,
+  twinkleDuration: Math.random() * 3 + 2,
+  floatDuration: Math.random() * 20 + 15,
+  delay: Math.random() * 5,
+  moveDelay: Math.random() * 10,
+  opacity: Math.random() * 0.5 + 0.5,
+  direction: Math.random() > 0.5 ? 1 : -1,
+}));
+---
+
+<div class="starfield">
+  {stars.map((star) => (
+    <div
+      class="star"
+      style={{
+        left: `${star.x}%`,
+        top: `${star.y}%`,
+        width: `${star.size}px`,
+        height: `${star.size}px`,
+        animation: `twinkle ${star.twinkleDuration}s infinite ease-in-out ${star.delay}s, float ${star.floatDuration}s infinite ease-in-out ${star.moveDelay}s`,
+        opacity: star.opacity,
+        "--float-direction": star.direction,
+      }}
+    />
+  ))}
+</div>
+
+<style>
+  .starfield {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #060f1a 0%, #0f1113 50%, #061220 100%);
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .star {
+    position: absolute;
+    background-color: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+  }
+
+  @keyframes twinkle {
+    0%, 100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translate(0, 0);
+    }
+    25% {
+      transform: translate(calc(var(--float-direction) * 15px), -10px);
+    }
+    50% {
+      transform: translate(calc(var(--float-direction) * 20px), 5px);
+    }
+    75% {
+      transform: translate(calc(var(--float-direction) * 10px), -5px);
+    }
+  }
+</style>
